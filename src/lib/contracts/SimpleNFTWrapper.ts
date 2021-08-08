@@ -1,0 +1,81 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import Web3 from 'web3';
+import * as SimpleNFTJSON from '../../../build/contracts/SimpleNFT.json';
+import { SimpleNFT } from '../../types/SimpleNFT';
+
+const DEFAULT_SEND_OPTIONS = {
+    gas: 6000000
+};
+
+export class SimpleNFTWrapper {
+    web3: Web3;
+
+    contract: SimpleNFT;
+
+    address: string;
+
+    constructor(web3: Web3) {
+        this.web3 = web3;
+        this.contract = new web3.eth.Contract(SimpleNFTJSON.abi as any) as any;
+    }
+
+    get isDeployed() {
+        return Boolean(this.address);
+    }
+
+    async getTotalSupply(addr: string) {
+        const value = await this.contract.methods.balanceOf(addr).call();
+        return value;
+    }
+
+    async getTokenSymbol() {
+        const value = await this.contract.methods.symbol().call();
+        return value;
+    }
+
+    async ownerOf(tokenId: number) {
+        const value = await this.contract.methods.ownerOf(tokenId).call();
+        return value;
+    }
+
+    async getTokenName() {
+        const value = await this.contract.methods.name().call();
+        return value;
+    }
+
+    async awardItem(player: string, tokenURI: string) {
+        const value = await this.contract.methods.awardItem(player, tokenURI).call();
+        return value;
+    }
+
+    async setTransferNFT(fromAddress: string, toAddress: string, tokenID: number) {
+        const tx = await this.contract.methods.transferFrom(fromAddress, toAddress, tokenID).send({
+            ...DEFAULT_SEND_OPTIONS,
+            from: fromAddress
+        });
+
+        return tx;
+    }
+
+    async deploy(fromAddress: string) {
+        const deployTx = await (this.contract
+            .deploy({
+                data: SimpleNFTJSON.bytecode,
+                arguments: []
+            })
+            .send({
+                ...DEFAULT_SEND_OPTIONS,
+                from: fromAddress,
+                to: '0x0000000000000000000000000000000000000000'
+            } as any) as any);
+
+        this.useDeployed(deployTx.contractAddress);
+
+        return deployTx.transactionHash;
+    }
+
+    useDeployed(contractAddress: string) {
+        this.address = contractAddress;
+        this.contract.options.address = contractAddress;
+    }
+}
