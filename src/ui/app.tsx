@@ -220,8 +220,8 @@ export function App() {
             <br />
             <br />
             <input
-                payer="text"
-                tokenId="tokenId"
+                type="text"
+                placeholder="tokenId"
                 onChange={e => setToAddressInputValue(e.target.value)}
             />{' '}
             <input
@@ -229,7 +229,7 @@ export function App() {
                 placeholder="Amount"
                 onChange={e => setAmountInputValue(Number(e.target.value))}
             />{' '}
-            <button onClick={awardItem} disabled={!contract}>
+            <button onClick={() => {awardItem} }disabled={!contract}>
                 Transfer
             </button>
             <br />
