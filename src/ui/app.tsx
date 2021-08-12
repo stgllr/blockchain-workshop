@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { PolyjuiceHttpProvider } from '@polyjuice-provider/web3';
 import { AddressTranslator } from 'nervos-godwoken-integration';
 
-import { SimpleNFTWrapper } from '../lib/contracts/SimpleNFTWrapper';
+import { OrangeNFTWrapper } from '../lib/contracts/OrangeNFTWrapper';
 import { CONFIG } from '../config';
 
 async function createWeb3() {
@@ -43,7 +43,7 @@ async function createWeb3() {
 
 export function App() {
     const [web3, setWeb3] = useState<Web3>(null);
-    const [contract, setContract] = useState<SimpleNFTWrapper>();
+    const [contract, setContract] = useState<OrangeNFTWrapper>();
     const [accounts, setAccounts] = useState<string[]>();
     const [metadatatoken, setmetadata] = useState<string>();
     const [l2Balance, setL2Balance] = useState<bigint>();
@@ -90,7 +90,7 @@ export function App() {
     const account = accounts?.[0];
 
     async function deployContract() {
-        const _contract = new SimpleNFTWrapper(web3);
+        const _contract = new OrangeNFTWrapper(web3);
 
         try {
             setDeployTxHash(undefined);
@@ -125,21 +125,17 @@ export function App() {
     }
 
     async function setExistingContractAddress(contractAddress: string) {
-        const _contract = new SimpleNFTWrapper(web3);
+        const _contract = new OrangeNFTWrapper(web3);
         _contract.useDeployed(contractAddress.trim());
 
         setContract(_contract);
     }
 
     async function awardItem() {
-        const _contract = new SimpleNFTWrapper(web3);
         try {
             setTransactionInProgress(true);
-            await _contract.awardItem(toAddressInputValue, metadatatoken);
-            toast(
-                'Successfully ',
-                { type: 'success' }
-            );
+            await contract.awardItem(toAddressInputValue, metadatatoken);
+            toast('Successfully ', { type: 'success' });
         } catch (error) {
             console.error(error);
             toast.error(
@@ -149,8 +145,6 @@ export function App() {
         } finally {
             setTransactionInProgress(false);
         }
-
-        setContract(_contract);
     }
 
     async function setTransferTokenAmount() {
@@ -206,7 +200,7 @@ export function App() {
             Deploy transaction hash: <b>{deployTxHash || '-'}</b>
             <br />
             <hr />
-            <p>The button below will deploy a ERC20 token.</p>
+            <p>The button below will deploy a ERC721 token.</p>
             <button onClick={deployContract} disabled={!l2Balance}>
                 Deploy contract
             </button>
@@ -240,13 +234,9 @@ export function App() {
                 placeholder="address"
                 onChange={e => setToAddressInputValue(e.target.value)}
             />{' '}
-            <input
-                type="text"
-                placeholder="metadata"
-                onChange={e => setmetadata(e.target.value)}
-            />{' '}
-            <button onClick={awardItem}disabled={!contract}>
-            AwardItem
+            <input type="text" placeholder="metadata" onChange={e => setmetadata(e.target.value)} />{' '}
+            <button onClick={awardItem} disabled={!contract}>
+                AwardItem
             </button>
             <br />
             <br />
