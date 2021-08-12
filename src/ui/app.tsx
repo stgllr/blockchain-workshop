@@ -45,6 +45,7 @@ export function App() {
     const [web3, setWeb3] = useState<Web3>(null);
     const [contract, setContract] = useState<SimpleNFTWrapper>();
     const [accounts, setAccounts] = useState<string[]>();
+    const [metadatatoken, setmetadata] = useState<string>();
     const [l2Balance, setL2Balance] = useState<bigint>();
     const [existingContractIdInputValue, setExistingContractIdInputValue] = useState<string>();
     const [deployTxHash, setDeployTxHash] = useState<string | undefined>();
@@ -130,9 +131,24 @@ export function App() {
         setContract(_contract);
     }
 
-    async function awardItem(payer: string, tokenURI: string) {
+    async function awardItem() {
         const _contract = new SimpleNFTWrapper(web3);
-        _contract.awardItem(payer, tokenURI);
+        try {
+            setTransactionInProgress(true);
+            await _contract.awardItem(toAddressInputValue, metadatatoken);
+            toast(
+                'Successfully ',
+                { type: 'success' }
+            );
+        } catch (error) {
+            console.error(error);
+            toast.error(
+                'There was an error sending your transaction. Please check developer console.'
+            );
+            console.log(toAddressInputValue, metadatatoken);
+        } finally {
+            setTransactionInProgress(false);
+        }
 
         setContract(_contract);
     }
@@ -221,15 +237,15 @@ export function App() {
             <br />
             <input
                 type="text"
-                placeholder="tokenId"
+                placeholder="address"
                 onChange={e => setToAddressInputValue(e.target.value)}
             />{' '}
             <input
                 type="text"
-                placeholder="Amount"
-                onChange={e => setAmountInputValue(Number(e.target.value))}
+                placeholder="metadata"
+                onChange={e => setmetadata(e.target.value)}
             />{' '}
-            <button onClick={() => {awardItem} }disabled={!contract}>
+            <button onClick={awardItem}disabled={!contract}>
                 Transfer
             </button>
             <br />
