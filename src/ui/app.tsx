@@ -246,7 +246,7 @@ export function App() {
                 onChange={e => setmetadata(e.target.value)}
             />{' '}
             <button onClick={awardItem}disabled={!contract}>
-                Transfer
+            AwardItem
             </button>
             <br />
             <br />
