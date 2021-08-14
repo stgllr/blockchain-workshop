@@ -3,5 +3,7 @@
 Start UI:
 
 ```
-yarn && yarn build && yarn ui
+yarn
+yarn build 
+yarn ui
 ```
